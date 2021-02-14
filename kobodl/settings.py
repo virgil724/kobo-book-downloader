@@ -1,22 +1,21 @@
-import dataclasses
+import json
 import os
 from typing import List, Union
 
-from dataclasses_json import dataclass_json
+from pydantic import BaseModel, Field
+from pydantic.error_wrappers import ValidationError
+from pydantic.json import pydantic_encoder
+from pydantic.networks import HttpUrl
 
 
-@dataclass_json
-@dataclasses.dataclass
-class CalibreWeb:
+class CalibreWeb(BaseModel):
     enabled: bool = False
-    url: str = "http://localhost:8083"
+    url: HttpUrl = "http://localhost:8083"
     username: str = ""
     password: str = ""
 
 
-@dataclass_json
-@dataclasses.dataclass
-class User:
+class User(BaseModel):
     Email: str
     DeviceId: str = ""
     AccessToken: str = ""
@@ -31,11 +30,9 @@ class User:
         return len(self.UserId) > 0 and len(self.UserKey) > 0
 
 
-@dataclass_json
-@dataclasses.dataclass
-class UserList:
-    users: List[User] = dataclasses.field(default_factory=list)
-    calibre_web: CalibreWeb = dataclasses.field(default_factory=CalibreWeb)
+class UserList(BaseModel):
+    users: List[User] = Field(default_factory=list)
+    calibre_web: CalibreWeb = Field(default_factory=CalibreWeb)
 
     def getUser(self, identifier: str) -> Union[User, None]:
         for user in self.users:
@@ -64,13 +61,13 @@ class Settings:
     def Load(self) -> UserList:
         if not os.path.isfile(self.SettingsFilePath):
             return UserList()
-        with open(self.SettingsFilePath, "r") as f:
-            jsonText = f.read()
-            return UserList.from_json(jsonText)
+        with open(self.SettingsFilePath, "r") as settings_file:
+            settings_dict = json.load(settings_file)
+            return UserList(**settings_dict)
 
     def Save(self) -> None:
         with open(self.SettingsFilePath, "w") as f:
-            f.write(self.UserList.to_json(indent=4))
+            json.dump(self.UserList, f, indent=4, default=pydantic_encoder)
 
     @staticmethod
     def __GetCacheFilePath() -> str:

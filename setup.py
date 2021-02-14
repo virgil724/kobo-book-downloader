@@ -19,10 +19,9 @@ setup(
     install_requires=[
         'beautifulsoup4',
         'click<8',
-        'dataclasses',
-        'dataclasses-json',
         'flask>=1.1.0',
         'pycryptodome<4',
+        'pydantic<1.8'
         'requests>=2.25',
         'tabulate',
     ],
