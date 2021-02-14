@@ -3,7 +3,6 @@ import os
 from typing import List, Union
 
 from pydantic import BaseModel, Field
-from pydantic.error_wrappers import ValidationError
 from pydantic.json import pydantic_encoder
 from pydantic.networks import HttpUrl
 
