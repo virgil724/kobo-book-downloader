@@ -53,6 +53,18 @@ def getUserBooks(userid, error=None, success=None):
         error=error,
         success=success,
     )
+@app.route('/user/<userid>/allbook', methods=['GET'])
+def getUserBooks(userid, error=None, success=None):
+    user = Globals.Settings.UserList.getUser(userid)
+    if not user:
+        abort(404)
+    books = actions.ListBooks([user], True, None)
+    return render_template(
+        'books.j2',
+        books=books,
+        error=error,
+        success=success,
+    )
 
 
 @app.route('/user/<userid>/book/<productid>', methods=['GET'])
@@ -75,3 +87,10 @@ def books():
     userlist = Globals.Settings.UserList.users
     books = actions.ListBooks(userlist, False, None)
     return render_template('books.j2', books=books)
+
+@app.route('/allbook', methods=['GET'])
+def books():
+    userlist = Globals.Settings.UserList.users
+    books = actions.ListBooks(userlist, False, None)
+    return render_template('books.j2', books=books)
+
